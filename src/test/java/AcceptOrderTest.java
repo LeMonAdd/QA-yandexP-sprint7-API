@@ -40,13 +40,13 @@ public class AcceptOrderTest {
     @DisplayName("Запрос с несуществующим номером курьера ответ 404 негативный тест")
     public void requestWithNonExistentCourierNumberResponse404NegativeTest() {
         AcceptOrder acceptOrder = new AcceptOrder();
-       ValidatableResponse acceptOrderResponse =  acceptOrder.acceptOrderRequest("1", "courierId", "213");
-       int stausCode = acceptOrderResponse.extract().statusCode();
-       String actualMessage = acceptOrderResponse.extract().path("message");
-       String expectedMessage = "Курьера с таким id не существует";
+        ValidatableResponse acceptOrderResponse = acceptOrder.acceptOrderRequest("1", "courierId", "213");
+        int stausCode = acceptOrderResponse.extract().statusCode();
+        String actualMessage = acceptOrderResponse.extract().path("message");
+        String expectedMessage = "Курьера с таким id не существует";
 
-       assertEquals("Ожидаю статус код ответа 404", HTTP_NOT_FOUND, stausCode);
-       assertEquals("Неверный текст ошибки", expectedMessage, actualMessage);
+        assertEquals("Ожидаю статус код ответа 404", HTTP_NOT_FOUND, stausCode);
+        assertEquals("Неверный текст ошибки", expectedMessage, actualMessage);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class AcceptOrderTest {
         courierId = loginResponse.extract().path("id");
 
         AcceptOrder acceptOrder = new AcceptOrder();
-        ValidatableResponse acceptOrderResponse =  acceptOrder.acceptOrderRequest("1", "courierId", courierId);
+        ValidatableResponse acceptOrderResponse = acceptOrder.acceptOrderRequest("1", "courierId", courierId);
         int statusCode = acceptOrderResponse.extract().statusCode();
         String actualMessage = acceptOrderResponse.extract().path("message");
         String expectedMessage = "Этот заказ уже в работе";
@@ -90,7 +90,7 @@ public class AcceptOrderTest {
 
         // Принимаем заказ
         AcceptOrder acceptOrder = new AcceptOrder();
-        ValidatableResponse acceptOrderResponse =  acceptOrder.acceptOrderRequest(orderId, "courierId", courierId);
+        ValidatableResponse acceptOrderResponse = acceptOrder.acceptOrderRequest(orderId, "courierId", courierId);
         int statusCode = acceptOrderResponse.extract().statusCode();
         String actualMessage = acceptOrderResponse.extract().path("message");
         String expectedMessage = "Заказа с таким id не существует";
@@ -118,7 +118,7 @@ public class AcceptOrderTest {
 
         // Принимаем заказ
         AcceptOrder acceptOrder = new AcceptOrder();
-        ValidatableResponse acceptOrderResponse =  acceptOrder.acceptOrderRequest(orderId, "?courierId", courierId);
+        ValidatableResponse acceptOrderResponse = acceptOrder.acceptOrderRequest(orderId, "?courierId", courierId);
         int statusCode = acceptOrderResponse.extract().statusCode();
         String actualMessage = acceptOrderResponse.extract().path("message");
         String expectedMessage = "Недостаточно данных для поиска";
@@ -148,8 +148,8 @@ public class AcceptOrderTest {
 
         // Принимаем заказ
         AcceptOrder acceptOrder = new AcceptOrder();
-        ValidatableResponse acceptOrderResponse =  acceptOrder.acceptOrderRequest(orderId);
+        ValidatableResponse acceptOrderResponse = acceptOrder.acceptOrderRequest(orderId);
         int statusCode = acceptOrderResponse.extract().statusCode();
-       //assertEquals("Ожидаю статус код ответа 200", HTTP_OK, statusCode);
+        //assertEquals("Ожидаю статус код ответа 200", HTTP_OK, statusCode);
     }
 }

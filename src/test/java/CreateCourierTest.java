@@ -1,5 +1,5 @@
 import client.CourierClient;
-import com.sun.source.tree.AssertTree;
+import com.github.javafaker.Faker;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
@@ -9,6 +9,7 @@ import model.CourierGenerator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import static base.Config.Urls.BASE_URI;
 import static java.net.HttpURLConnection.*;
 import static org.junit.Assert.*;
@@ -16,6 +17,8 @@ import static org.junit.Assert.*;
 public class CreateCourierTest {
     private CourierClient courierClient;
     private int courierId;
+    private int courierId2;
+
 
     @Before
     public void setup() {
@@ -27,6 +30,7 @@ public class CreateCourierTest {
     @After
     public void clearData() {
         courierClient.delete(courierId);
+        courierClient.delete(courierId2);
     }
 
     @Test
@@ -110,14 +114,16 @@ public class CreateCourierTest {
     @Test
     @DisplayName("Создаём курьера без логина негативный тест")
     public void requestWithoutLoginWillReturnStatusCode400NegativeTest() {
+        Faker faker = new Faker();
+
         // Создали объект курьера без логина
-        Courier courier = new Courier("fff", "fff");
+        Courier courier = new Courier(faker.name().username(), faker.name().firstName());
 
         // Создаю курьера в ручке
         ValidatableResponse createResponse = courierClient.create(courier);
         int statusCode = createResponse.extract().statusCode();
 
-        if(statusCode == 400) {
+        if (statusCode == 400) {
             String actualMessage400 = createResponse.extract().path("message");
             String expectedMessage400 = "Недостаточно данных для создания учетной записи";
 
@@ -132,15 +138,17 @@ public class CreateCourierTest {
 
     @Test
     @DisplayName("Создаём курьера без пароля негативный тест")
-    public void  requestWithOneLoginWillReturnStatusCode400NegativeTest() {
+    public void requestWithOneLoginWillReturnStatusCode400NegativeTest() {
+        Faker faker = new Faker();
+
         // Создали объект курьера без password и firstName
-        Courier courier = new Courier("fff");
+        Courier courier = new Courier(faker.name().username());
 
         // Создаю курьера в ручке
         ValidatableResponse createResponse = courierClient.create(courier);
         int statusCode = createResponse.extract().statusCode();
 
-        if(statusCode == 400) {
+        if (statusCode == 400) {
             String actualMessage400 = createResponse.extract().path("message");
             String expectedMessage400 = "Недостаточно данных для создания учетной записи";
 
@@ -155,10 +163,12 @@ public class CreateCourierTest {
 
     @Test
     @DisplayName("Создаём 2-х курьеров с одинаковым логином негативный тест")
-    public void  createUserWithLoginThatAlreadyExistsAnErrorIsReturnedNegativeTest() {
+    public void createUserWithLoginThatAlreadyExistsAnErrorIsReturnedNegativeTest() {
+        Faker faker = new Faker();
+
         // Создали объекты курьеров c одинаковым логином
-        Courier courier = new Courier("ffff123", "ffff123", "dsfdsf");
-        Courier courier2 = new Courier("ffff123", "ffff12323432", "Roman Test");
+        Courier courier = new Courier("ffff123", faker.name().username(), faker.name().firstName());
+        Courier courier2 = new Courier("ffff123", faker.name().username(), faker.name().firstName());
 
         // Создаю курьера первый раз и проверяю, что он создан
         ValidatableResponse createResponse = courierClient.create(courier);
@@ -175,19 +185,15 @@ public class CreateCourierTest {
         ValidatableResponse createResponse2 = courierClient.create(courier2);
         int statusCode2 = createResponse2.extract().statusCode();
 
-        if(statusCode2 == 409) {
-            String actualMessage409 = createResponse2.extract().path("message");
-            String expectedMessage409 = "Этот логин уже используется. Попробуйте другой.";
-            assertEquals("Неверный статус код, ожидаю 409", HTTP_CONFLICT, statusCode2);
-            assertEquals("Неверное сообщение об ошибке", expectedMessage409, actualMessage409);
-        } else {
-            //Получаю данные 2-го курьера, если он создаться по ошибке для удаления
-            ValidatableResponse loginResponse2 = courierClient.login(CourierCredentials.from(courier2));
-            int courierId2 = loginResponse.extract().path("id");
-            courierClient.delete(courierId2);
-            assertTrue("Создался курьер с одинаковым логином", false);
-        }
+        String actualMessage409 = createResponse2.extract().path("message");
+        String expectedMessage409 = "Этот логин уже используется. Попробуйте другой.";
 
+        assertEquals("Неверный статус код, ожидаю 409", HTTP_CONFLICT, statusCode2);
+        assertEquals("Неверное сообщение об ошибке", expectedMessage409, actualMessage409);
+
+        //Получаю данные 2-го курьера, если он создаться по ошибке для удаления
+        ValidatableResponse loginResponse2 = courierClient.login(CourierCredentials.from(courier2));
+        int courierId2 = loginResponse.extract().path("id");
     }
 
 }

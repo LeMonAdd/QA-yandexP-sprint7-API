@@ -10,14 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static java.net.HttpURLConnection.*;
-import static org.hamcrest.Matchers.equalTo;
-
-import java.util.ArrayList;
-
 import static base.Config.Urls.BASE_URI;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class GetOrderByNumberTest {
     private CourierClient courierClient;
@@ -67,6 +62,7 @@ public class GetOrderByNumberTest {
         assertEquals("Ожидаю статус код ответа 400", HTTP_BAD_REQUEST, statusCode);
         assertEquals("Неверное сообщение об ошибки", expectedMessage, responseMessage);
     }
+
     @Test
     @DisplayName("Запрос с неверным трекером заказа негативный тест")
     public void requestWithNonExistentNumberError404NegativeTest() {
